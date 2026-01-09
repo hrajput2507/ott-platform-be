@@ -2,26 +2,10 @@
 
 A scalable, high-performance backend service for managing user's personalized list of movies and TV shows on an OTT platform.
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Running the Application](#running-the-application)
-- [API Documentation](#api-documentation)
-- [Testing](#testing)
-- [Database Seeding](#database-seeding)
-- [Design Decisions](#design-decisions)
-- [Performance Optimizations](#performance-optimizations)
-- [Assumptions](#assumptions)
-- [Project Structure](#project-structure)
-
 ## 🎯 Overview
 
 This project implements a "My List" feature backend service that allows users to:
+
 - Add movies and TV shows to their personalized list
 - Remove items from their list
 - Retrieve paginated list of saved items with high performance (<10ms target)
@@ -59,12 +43,14 @@ The service is built with TypeScript, Express.js, and MongoDB, following best pr
 ## 🚀 Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd assesment
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -88,6 +74,7 @@ NODE_ENV=development
 ## 🏃 Running the Application
 
 ### Development Mode
+
 ```bash
 npm run dev
 ```
@@ -95,23 +82,28 @@ npm run dev
 The server will start on `http://localhost:3000` (or the port specified in `.env`).
 
 ### Production Mode
+
 ```bash
 npm run build
 npm start
 ```
 
 ### Health Check
+
 Visit `http://localhost:3000/health` to verify the server is running.
 
 ## 📚 API Documentation
 
 ### Base URL
+
 ```
 http://localhost:3000/api/my-list
 ```
 
 ### Authentication
+
 All endpoints require a user ID in the `x-user-id` header:
+
 ```
 x-user-id: <user-id>
 ```
@@ -119,11 +111,13 @@ x-user-id: <user-id>
 ### Endpoints
 
 #### 1. Add to My List
+
 **POST** `/api/my-list`
 
 Add a movie or TV show to the user's list.
 
 **Request Body:**
+
 ```json
 {
   "contentId": "movie-id-or-tvshow-id",
@@ -132,6 +126,7 @@ Add a movie or TV show to the user's list.
 ```
 
 **Success Response (201):**
+
 ```json
 {
   "message": "Item added to list successfully",
@@ -143,17 +138,20 @@ Add a movie or TV show to the user's list.
 ```
 
 **Error Responses:**
+
 - `400`: Invalid request body
 - `401`: Missing user ID
 - `404`: Content not found
 - `409`: Item already in list
 
 #### 2. Remove from My List
+
 **DELETE** `/api/my-list/:contentId`
 
 Remove an item from the user's list.
 
 **Success Response (200):**
+
 ```json
 {
   "message": "Item removed from list successfully",
@@ -164,19 +162,23 @@ Remove an item from the user's list.
 ```
 
 **Error Responses:**
+
 - `401`: Missing user ID
 - `404`: Item not found in list
 
 #### 3. List My Items
+
 **GET** `/api/my-list?page=1&pageSize=10`
 
 Retrieve paginated list of items in user's list.
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `pageSize` (optional): Items per page (default: 10, max: 100)
 
 **Success Response (200):**
+
 ```json
 {
   "data": [
@@ -201,24 +203,24 @@ Retrieve paginated list of items in user's list.
 }
 ```
 
-**Error Responses:**
-- `401`: Missing user ID
-- `400`: Invalid pagination parameters
-
 ## 🧪 Testing
 
 ### Run All Tests
+
 ```bash
 npm test
 ```
 
 ### Run Tests in Watch Mode
+
 ```bash
 npm run test:watch
 ```
 
 ### Test Coverage
+
 Tests include:
+
 - ✅ Success cases for all endpoints
 - ✅ Error cases (400, 401, 404, 409, 500)
 - ✅ Edge cases (duplicates, empty lists, pagination)
@@ -234,6 +236,7 @@ npm run seed
 ```
 
 This creates:
+
 - 3 sample users
 - 10 movies
 - 8 TV shows
@@ -244,13 +247,15 @@ This creates:
 ## 🎨 Design Decisions
 
 ### Architecture
+
 - **Layered Architecture**: Controllers → Services → Models
 - **Separation of Concerns**: Business logic in services, HTTP handling in controllers
 - **Middleware Pattern**: Validation and authentication handled via middleware
 
 ### Database Design
+
 - **MongoDB**: Chosen for flexibility and scalability
-- **Indexes**: 
+- **Indexes**:
   - Compound unique index on `(userId, contentId)` to prevent duplicates
   - Compound index on `(userId, addedAt)` for efficient sorting and pagination
 - **Lean Queries**: Using `.lean()` for faster queries when full Mongoose documents aren't needed
@@ -258,11 +263,13 @@ This creates:
 ### Performance Optimizations
 
 1. **Caching Strategy**:
+
    - In-memory cache for list queries (5-second TTL)
    - Separate cache for total count (10-second TTL)
    - Cache invalidation on add/remove operations
 
 2. **Query Optimization**:
+
    - Proper indexing on frequently queried fields
    - Projection to fetch only required fields
    - Parallel queries for movies and TV shows
@@ -273,12 +280,14 @@ This creates:
    - Cached total count to reduce database queries
 
 ### Error Handling
+
 - Consistent error response format with error codes
 - Proper HTTP status codes
 - Detailed error messages for debugging
 - Logging for monitoring and troubleshooting
 
 ### Security
+
 - Helmet.js for security headers
 - Rate limiting (100 requests per 15 minutes per IP)
 - Input validation middleware
@@ -291,15 +300,18 @@ This creates:
 To achieve the <10ms target for "List My Items":
 
 1. **Database Indexing**:
+
    - Compound index on `(userId, addedAt)` for efficient queries
    - Unique index on `(userId, contentId)` for duplicate prevention
 
 2. **Caching**:
+
    - In-memory cache with 5-second TTL
    - Cache key includes userId, page, and pageSize
    - Cache invalidation on mutations
 
 3. **Query Optimization**:
+
    - Lean queries (plain JavaScript objects)
    - Field projection (only fetch needed fields)
    - Parallel fetching of movies and TV shows
@@ -337,40 +349,6 @@ To achieve the <10ms target for "List My Items":
 
 ## 📁 Project Structure
 
-```
-assesment/
-├── src/
-│   ├── config/
-│   │   └── database.ts          # MongoDB connection configuration
-│   ├── controllers/
-│   │   └── myListController.ts   # HTTP request handlers
-│   ├── middleware/
-│   │   └── validation.ts         # Input validation middleware
-│   ├── models/
-│   │   ├── Movie.ts              # Movie model
-│   │   ├── TVShow.ts             # TV Show model
-│   │   ├── User.ts               # User model
-│   │   └── MyList.ts             # My List model
-│   ├── routes/
-│   │   └── myListRoutes.ts       # API routes
-│   ├── scripts/
-│   │   └── seed.ts               # Database seeding script
-│   ├── services/
-│   │   └── myListService.ts      # Business logic
-│   ├── test/
-│   │   ├── integration/
-│   │   │   └── myList.test.ts   # Integration tests
-│   │   └── setup.ts              # Test setup
-│   ├── types/
-│   │   └── index.ts              # TypeScript type definitions
-│   └── server.ts                 # Express app and server setup
-├── .env.example                  # Environment variables template
-├── jest.config.js                # Jest configuration
-├── package.json                  # Dependencies and scripts
-├── tsconfig.json                 # TypeScript configuration
-└── README.md                     # This file
-```
-
 ## 🔍 Code Quality
 
 - **TypeScript**: Strict mode enabled for type safety
@@ -383,6 +361,7 @@ assesment/
 ## 🚢 Deployment
 
 ### Environment Variables for Production
+
 ```env
 MONGODB_URI=<your-production-mongodb-uri>
 PORT=3000
@@ -390,26 +369,8 @@ NODE_ENV=production
 ```
 
 ### Build for Production
+
 ```bash
 npm run build
 npm start
 ```
-
-### CI/CD
-- Use any CI/CD service of your choice (GitHub Actions, GitLab CI, Jenkins, etc.)
-- Run tests before deployment
-- Build and deploy to your hosting service
-
-## 📄 License
-
-ISC
-
-## 👤 Author
-
-Built as an interview assessment for OTT platform backend development.
-
----
-
-**Note**: This is a production-ready implementation following best practices for scalability, performance, and maintainability.
-
-
